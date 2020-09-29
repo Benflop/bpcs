@@ -3,6 +3,7 @@ from tkinter import filedialog, Text, PhotoImage, Image, messagebox
 from PIL import ImageTk, Image
 import os, threading
 from bpcs.bpcs_steg_encode import *
+from bpcs.bpcs_steg_decode import *
 from tkinter.ttk import Progressbar
 
 
@@ -32,7 +33,8 @@ class TestGUI():
 
         self.decryptphoto = PhotoImage(file=r"resources\unlock.PNG")
         self.decrypPhotoimage = self.decryptphoto.subsample(6, 6)
-        self.btnDecrypt = tk.Button(self.root, image=self.decrypPhotoimage, bg="#D3D3D3")
+        self.btnDecrypt = tk.Button(self.root, image=self.decrypPhotoimage, bg="#D3D3D3",
+                                    command = lambda: self.decryptFunction())
         self.btnDecrypt.place(relwidth=0.3, relheight=0.3, relx=0.55, rely=0.4)
 
         self.lblDecryptText = tk.Label(text="Decrypt Image", font=("Helvetica", 16), bg="white")
@@ -60,7 +62,7 @@ class TestGUI():
         self.btnFileSelectInput.place(relwidth=0.12, relheight=0.05, relx=0.52, rely=0.31)
         self.btnFileSelectInput.lower(self.frame)
 
-        self.lblShowSelectInput = tk.Label(text="dsahjdghajs.txt", font=("Helvetica", 16), bg="white")
+        self.lblShowSelectInput = tk.Label( text='Something',font=("Helvetica", 16), bg="white")
         self.lblShowSelectInput.place(relwidth=0.2, relheight=0.05, relx=0.52, rely=0.31)
         self.lblShowSelectInput.lower(self.frame)
 
@@ -71,7 +73,7 @@ class TestGUI():
 
 
         self.lblOutputFileName=tk.Label(text="Enter new file name:", font=("Helvetica", 16), bg="white")
-        self.lblOutputFileName.place(relwidth=0.35, relheight=0.08, relx=0.19, rely=0.4)
+        self.lblOutputFileName.place(relwidth=0.35, relheight=0.08, relx=0.18, rely=0.4)
         self.lblOutputFileName.lower(self.frame)
 
         self.textOutputFileName = tk.Entry(self.root)
@@ -83,29 +85,38 @@ class TestGUI():
         self.fileLocation = ""
         self.outputFileName = ""
         self.encodeData = ""
-        self.encrypt_state = False
+        self.thirdPage = False # false is at the 2nd page, true is at 3rd page
+        self.selectedFunction = 0 # 0 is encrypt, 1 is decrypt
 
         self.lblShowPanel=None
-        # self.progress = Progressbar(self.root, orient="horizontal", length=100, mode='indeterminate')
-
+        self.progress = Progressbar(self.root, orient="horizontal", length=100, mode='indeterminate')
 
         self.root.mainloop()
 
 
-    def set_Input(self):
-        self.encodeData=self.open_file()
-        self.btnFileSelectInput.lower(self.frame)
-        base = os.path.basename(self.encodeData)
-        self.lblShowSelectInput['text']=base
-        self.lblShowSelectInput.lift(self.frame)
+    def encryptFunction(self):
+        self.lblProgramName['text'] = "Encryption Selected"
+        # self.btnBack.lift(self.frame)
+        self.lblSelectText.lift(self.frame)
+        self.btnFileSelect.lift(self.frame)
+        self.btnDecrypt.lower(self.frame)
+        self.btnEncrypt.lower(self.frame)
+        self.lblDecryptText.lower(self.frame)
+        self.lblEncryptText.lower(self.frame)
 
-
-    def open_file(self):
-        return filedialog.askopenfilename(initialdir="/", title="Select File", filetypes=(
-        ("JPEG", ".jpg"), ("png", ".png"), ("txt", ".txt"), ("all files", ".")))
+    def decryptFunction(self):
+        self.selectedFunction = 1
+        self.lblProgramName['text'] = "Decryption Selected"
+        self.lblSelectText['text'] = "Select image to decrypt:"
+        self.lblSelectText.lift(self.frame)
+        self.btnFileSelect.lift(self.frame)
+        self.btnDecrypt.lower(self.frame)
+        self.btnEncrypt.lower(self.frame)
+        self.lblDecryptText.lower(self.frame)
+        self.lblEncryptText.lower(self.frame)
 
     def set_Image(self):
-        self.fileLocation=self.open_file()
+        self.fileLocation = self.open_file()
         if self.fileLocation:
             # opens the image
             img = Image.open(self.fileLocation)
@@ -119,60 +130,110 @@ class TestGUI():
             self.lblShowPanel.place(relwidth=0.6, relheight=0.5, relx=0.2, rely=0.3)
             self.lblProgramName['text'] = "Photo Selected"
             self.lblSelectText.lower(self.frame)
-            # self.btnFileSelect.lower(self.frame)
             self.btnNextProcess.lift(self.frame)
             self.btnFileSelectInput.lower(self.frame)
 
+    def set_Input(self):
+        self.encodeData=self.open_file()
+        if self.encodeData:
+            self.btnFileSelectInput.lower(self.frame)
+            base = os.path.basename(self.encodeData)
+            self.lblShowSelectInput['text']=base
+            self.lblShowSelectInput.lift(self.frame)
+
+    def open_file(self):
+        return filedialog.askopenfilename(initialdir="\\", title="Select File", filetypes=(
+        ("png", ".png"), ("txt", ".txt"), ("all files", ".")))
+
+
     def encoding(self):
         encode(self.fileLocation, self.encodeData, self.outputFileName)
+        MsgBox = tk.messagebox.askquestion('Complete', 'Steganographier have encrypted the image successfully! The file is located at  \n'
+                                           +self.outputFileName + '\nDo you want to open the file?')
+
+        if MsgBox == 'yes':
+            os.system('cmd /c "'+self.outputFileName+'"')
+            self.reset()
+        else:
+            self.reset()
+
+    def decoding(self):
+        decode(self.fileLocation, self.outputFileName)
+        MsgBox = tk.messagebox.askquestion('Complete',
+                                           'Steganographier have decrypted the image successfully! The file is located at  \n'
+                                           + self.outputFileName + '\nDo you want to open the file?')
+
+        if MsgBox == 'yes':
+            os.system('cmd /c "' + self.outputFileName + '"')
+            self.reset()
+        else:
+            self.reset()
 
     def processing(self):
-
-        if self.encrypt_state:
-            if self.encodeData:
-                print("Well Done")
-                if(self.textOutputFileName.get()):
-                    # fileType=os.path(self.fileLocation).suffixes()
-                    extension = os.path.splitext(self.fileLocation)[1]
-                    self.outputFileName = os.path.dirname(self.fileLocation)+"/Encoded_"+self.textOutputFileName.get()+extension
-                    self.encoding()
+        if self.thirdPage: #check which page it is
+            if self.selectedFunction == 0:  # 0 is encrypt
+                if self.encodeData:  # check whether the .txt file is selected
+                    if (self.textOutputFileName.get()):  # check whether the NEW file is entered
+                        extension = os.path.splitext(self.fileLocation)[1]
+                        self.outputFileName = os.path.dirname(
+                            self.fileLocation) + "/Encoded_" + self.textOutputFileName.get() + extension
+                        self.encoding()
+                    else:
+                        messagebox.showerror("Error", "Please enter a file name.")
+                else:
+                    messagebox.showerror("Error", "Please select the encode data file")
+            else:# 1 is decrypt
+                if (self.textOutputFileName.get()):  # check whether the NEW file is entered
+                    self.outputFileName = os.path.dirname(
+                        self.fileLocation) + "/Encoded_" + self.textOutputFileName.get() + ".txt"
+                    self.decoding()
                 else:
                     messagebox.showerror("Error", "Please enter a file name.")
-            else:
-                messagebox.showerror("Error", "Please select the encode data file")
         else:
-            print("OOps")
-            self.lblProgramName['text'] = "Encryption Selected"
-            self.btnFileSelect.lower(self.frame)
-            self.lblShowPanel.lower(self.frame)
-            self.lblSelectText['text'] = "Select Input file: "
-            self.lblSelectText.lift(self.frame)
-            # self.btnNextProcess.lower(self.frame)
-            self.btnFileSelectInput.lift(self.frame)
-            self.encrypt_state=True
-            self.textOutputFileName.lift(self.frame)
-            self.lblOutputFileName.lift(self.frame)
-
-
-    def encryptFunction(self):
-        self.lblProgramName['text'] = "Encryption Selected"
-        # self.btnBack.lift(self.frame)
-        self.lblSelectText.lift(self.frame)
-        self.btnFileSelect.lift(self.frame)
-        self.btnDecrypt.lower(self.frame)
-        self.btnEncrypt.lower(self.frame)
-        self.lblDecryptText.lower(self.frame)
-        self.lblEncryptText.lower(self.frame)
+            if self.selectedFunction == 0:  # 0 is encrypt
+                self.lblProgramName['text'] = "Encryption Selected"
+                self.btnFileSelect.lower(self.frame)
+                self.lblShowPanel.lower(self.frame)
+                self.lblSelectText['text'] = "Select Input file: "
+                self.lblSelectText.lift(self.frame)
+                self.btnFileSelectInput.lift(self.frame)
+                self.thirdPage=True
+                self.textOutputFileName.lift(self.frame)
+                self.lblOutputFileName.lift(self.frame)
+            else:
+                self.lblProgramName['text'] = "Decryption Selected"
+                self.btnFileSelect.lower(self.frame)
+                self.lblShowPanel.lower(self.frame)
+                self.lblOutputFileName['text'] = "Enter decrypted name:"
+                self.thirdPage = True
+                self.textOutputFileName.lift(self.frame)
+                self.lblOutputFileName.lift(self.frame)
 
 
 
-
-    def homeDefault(self):
+    def reset(self):
         self.lblProgramName['text'] = "Steganographier"
-        self.btnBack.lower(self.frame)
-        self.btnDecrypt.lift(self.frame)
+        self.lblProgramName.lift(self.frame)
         self.btnEncrypt.lift(self.frame)
+        self.btnDecrypt.lift(self.frame)
         self.lblDecryptText.lift(self.frame)
         self.lblEncryptText.lift(self.frame)
+
+        self.lblShowPanel.lower(self.frame)
+        self.lblSelectText.lower(self.frame)
+        self.btnFileSelect.lower(self.frame)
+        self.btnFileSelectInput.lower(self.frame)
+        self.lblShowSelectInput.lower(self.frame)
+        self.btnNextProcess.lower(self.frame)
+        self.lblOutputFileName.lower(self.frame)
+        self.textOutputFileName.lower(self.frame)
+        self.textOutputFileName.delete(0, 'end')
+
+        self.fileLocation = ""
+        self.outputFileName = ""
+        self.encodeData = ""
+        self.lblSelectText['text'] = "Select image to encrypt:"
+        self.lblOutputFileName['text'] = "Enter new file name:"
+        self.thirdPage = False
 
 app=TestGUI()
