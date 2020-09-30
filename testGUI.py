@@ -66,7 +66,7 @@ class TestGUI():
         self.lblShowSelectInput.place(relwidth=0.2, relheight=0.05, relx=0.52, rely=0.31)
         self.lblShowSelectInput.lower(self.frame)
 
-        self.btnNextProcess = tk.Button(self.root, text='Next', bg="white", command = lambda: self.processing())
+        self.btnNextProcess = tk.Button(self.root, text='Next', bg="white", command=lambda: self.processing())
         self.btnNextProcess.place(relwidth=0.12, relheight=0.05, relx=0.45, rely=0.82)
         self.btnNextProcess.lower(self.frame)
 

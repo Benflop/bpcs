@@ -1,0 +1,71 @@
+<html>
+<header>
+<title>Sad Milk</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;1,700');
+  
+  body {
+    margin: 0px;
+  }
+  
+  p {
+    font-family: 'Courier Prime', monospace;
+    font-weight: bold
+    background-color: grey;
+    opacity: 1;
+  }
+
+  @media only screen and (min-width: 375px) and (max-width: 767px)  /* iPhone X */ { 
+    h1 {
+      text-align: center;
+    }
+    
+    .videoWrapper {
+      position: relative;
+      padding-bottom: 56.25%;
+      height = 0;
+    }
+    
+    .videoWrapper iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+  }
+
+  .parallax {
+    /* The image used */
+    background-image: url("milk.jpg");
+    background-color: transparent;
+
+    /* Create the parallax scrolling effect */
+    background-attachment: fixed;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    
+    /* Height of container */
+    height: 120%;
+  }
+  
+</style>
+<meta name="viewport" content="initial-scale = 1.0,maximum-scale = 1.0" /><!-- iPhone Support --> 
+</header>
+
+<body>
+<div class="parallax">
+<h1>Sad Milk</h1>
+<p>
+Sad Milk is a collaborative channel with several YouTubers. Every week, they will gather around to look at memes from various subreddits and provide hillarious commentary over it.
+It is a light hearted YouTube show that I watch to unwind after a busy day.
+</p>
+<div class="videoWrapper" align="center">
+  <iframe width="560" height="315" src="https://www.youtube.com/embed/mSD5Y5285Cs" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
+  </iframe>
+</div>
+</div>
+</body>
+
+</html>
