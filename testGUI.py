@@ -1,11 +1,11 @@
 import tkinter as tk
 import os
 
-from tkinter import filedialog, PhotoImage, Image, messagebox, LEFT, RIGHT
+from tkinter import filedialog, PhotoImage, Image, messagebox
 from PIL import ImageTk, Image
 from bpcs.bpcs_steg_encode import *
 from bpcs.bpcs_steg_decode import *
-from tkinter.ttk import *
+
 
 class TestGUI():
     def __init__(self):
@@ -20,6 +20,7 @@ class TestGUI():
 
         self.frame = tk.Frame(self.root, bg="white")
         self.frame.place(relwidth=0.8, relheight=0.8, relx=0.1, rely=0.1)
+        self.root.resizable(width=False, height=False)
 
         self.lblProgramName = tk.Label(text="Steganographier", font=("Helvetica", 32), bg="white")
         self.lblProgramName.place(relwidth=0.6, relheight=0.08, relx=0.2, rely=0.2)
@@ -43,30 +44,25 @@ class TestGUI():
         self.lblEncryptText = tk.Label(text="Encrypt Image", font=("Helvetica", 16), bg="white")
         self.lblEncryptText.place(relwidth=0.2, relheight=0.08, relx=0.2, rely=0.7)
 
-        self.photo = PhotoImage(file=r"resources\back.png")
-        self.photoimage = self.photo.subsample(10, 10)
-        self.btnBack = tk.Button(self.root, image=self.photoimage, bg="white", command = lambda: self.backFunction())
-        self.btnBack.place(relwidth=0.1, relheight=0.1, relx=0.1, rely=0.1)
-        self.btnBack.lower(self.frame) #make it invisible
 
         self.lblSelectText = tk.Label(text="Select image to encrypt:", font=("Helvetica", 16), bg="white")
         self.lblSelectText.place(relwidth=0.35, relheight=0.08, relx=0.17, rely=0.3)
         self.lblSelectText.lower(self.frame)
 
 
-        self.btnFileSelect = tk.Button(self.root, text='Browse', bg="white", command = lambda: self.set_Image())
+        self.btnFileSelect = tk.Button(self.root, text='Browse', font=("Helvetica", 16),bg="white", command = lambda: self.set_Image())
         self.btnFileSelect.place(relwidth=0.12, relheight=0.05, relx=0.52, rely=0.31)
         self.btnFileSelect.lower(self.frame)
 
-        self.btnFileSelectInput = tk.Button(self.root, text='Browse input', bg="white", command=lambda: self.set_Input())
-        self.btnFileSelectInput.place(relwidth=0.12, relheight=0.05, relx=0.52, rely=0.31)
+        self.btnFileSelectInput = tk.Button(self.root, text='Browse input', font=("Helvetica", 16),bg="white", command=lambda: self.set_Input())
+        self.btnFileSelectInput.place(relwidth=0.25, relheight=0.05, relx=0.52, rely=0.31)
         self.btnFileSelectInput.lower(self.frame)
 
         self.lblShowSelectInput = tk.Label( text='Something',font=("Helvetica", 16), bg="white")
         self.lblShowSelectInput.place(relwidth=0.2, relheight=0.05, relx=0.52, rely=0.31)
         self.lblShowSelectInput.lower(self.frame)
 
-        self.btnNextProcess = tk.Button(self.root, text='Next', bg="white", command=lambda: self.processing())
+        self.btnNextProcess = tk.Button(self.root, text='Next', bg="white",font=("Helvetica", 16), command=lambda: self.processing())
         self.btnNextProcess.place(relwidth=0.12, relheight=0.05, relx=0.45, rely=0.82)
         self.btnNextProcess.lower(self.frame)
 
@@ -77,8 +73,7 @@ class TestGUI():
         self.textOutputFileName = tk.Entry(self.root)
         self.textOutputFileName.place(relwidth=0.25, relheight=0.04, relx=0.51, rely=0.42)
         self.textOutputFileName.lower(self.frame)
-        # self.textOutputFileName.pack()
-        # self.textOutputFileName.grid(row=0, column=1)
+
 
         self.fileLocation = ""
         self.outputFileName = ""
@@ -87,7 +82,17 @@ class TestGUI():
         self.selectedFunction = 0 # 0 is encrypt, 1 is decrypt
 
         self.lblShowPanel=None
-        self.progress = Progressbar(self.root, orient="horizontal", length=100, mode='indeterminate')
+
+        self.lblShowOriginal = None
+        self.lblShowEncrypted = None
+        self.lblEncryptedText = None
+        self.lblOriginalText = None
+
+        self.btnHome = tk.Button(self.root, text='Home', font=("Helvetica", 16), bg="white", command=lambda: self.reset())
+        self.btnHome.place(relwidth=0.12, relheight=0.05, relx=0.44, rely=0.75)
+        self.btnHome.lower(self.frame)
+
+
 
         self.root.mainloop()
 
@@ -145,39 +150,46 @@ class TestGUI():
 
 
     def encoding(self):
-        compareWindow = tk.Toplevel(self.root)
-
-        compareWindow.geometry("1920x1080")
-
         encode(self.fileLocation, self.encodeData, self.outputFileName)
-        #MsgBox = tk.messagebox.askquestion('Complete', 'Steganographier have encrypted the image successfully! The file is located at  \n'
-                                           #+self.outputFileName + '\nDo you want to compare both the files?')
+        MsgBox = tk.messagebox.askquestion('Complete', 'Steganographier have encrypted the image successfully! The file is located at  \n'
+                                           +self.outputFileName + '\nDo you want to compare both the files?')
 
-        originalImg = Image.open(self.fileLocation)
-        # resize the image and apply a high-quality down sampling filter
-        originalImg = originalImg.resize((400, 400), Image.ANTIALIAS)
-        # PhotoImage class is used to add image to widgets, icons etc
-        originalImg = ImageTk.PhotoImage(originalImg)
-        originalImg.lblShowPanelOriginal = tk.Label(compareWindow, image=originalImg, bg="white")
-        originalImg.lblShowPanelOriginal.image = originalImg
-        originalImg.lblShowPanelOriginal.pack(side=LEFT)
 
-        # opens the image
-        encryptImg = Image.open(self.outputFileName)
-        # resize the image and apply a high-quality down sampling filter
-        encryptImg = encryptImg.resize((400, 400), Image.ANTIALIAS)
-        # PhotoImage class is used to add image to widgets, icons etc
-        encryptImg = ImageTk.PhotoImage(encryptImg)
-        encryptImg.lblShowPanelEncrypted = tk.Label(compareWindow, image=encryptImg, bg="white")
-        encryptImg.lblShowPanelEncrypted.image = encryptImg
-        encryptImg.lblShowPanelEncrypted.pack(side=RIGHT)
 
-        #if MsgBox == 'yes':
-            #os.system('cmd /c "'+self.outputFileName+'"')
-            #os.system('cmd /c "' +self.fileLocation+'"')
-            #self.reset()
-        #else:
-            #self.reset()
+        if MsgBox == 'yes':
+            self.lblProgramName['text'] = "Encryption Completed"
+            self.lblSelectText.lower(self.frame)
+            self.lblOutputFileName.lower(self.frame)
+            self.lblShowSelectInput.lower(self.frame)
+            self.btnNextProcess.lower(self.frame)
+            self.textOutputFileName.lower(self.frame)
+
+            originalImg = Image.open(self.fileLocation)
+            # resize the image and apply a high-quality down sampling filter
+            originalImg = originalImg.resize((210, 210), Image.ANTIALIAS)
+            # PhotoImage class is used to add image to widgets, icons etc
+            originalImg = ImageTk.PhotoImage(originalImg)
+            self.lblShowOriginal = tk.Label(self.root, image=originalImg, bg="white")
+            self.lblShowOriginal.image = originalImg
+            self.lblShowOriginal.place(relwidth=0.3, relheight=0.3, relx=0.15, rely=0.35)
+
+            # opens the image
+            encryptImg = Image.open(self.outputFileName)
+            # resize the image and apply a high-quality down sampling filter
+            encryptImg = encryptImg.resize((210, 210), Image.ANTIALIAS)
+            # PhotoImage class is used to add image to widgets, icons etc
+            encryptImg = ImageTk.PhotoImage(encryptImg)
+            self.lblShowEncrypted = tk.Label(self.root, image=encryptImg, bg="white")
+            self.lblShowEncrypted.image = encryptImg
+            self.lblShowEncrypted.place(relwidth=0.3, relheight=0.3, relx=0.55, rely=0.35)
+
+            self.lblOriginalText = tk.Label(text="Original Photo", font=("Helvetica", 16), bg="white")
+            self.lblOriginalText.place(relwidth=0.3, relheight=0.08, relx=0.15, rely=0.65)
+            self.lblEncryptedText = tk.Label(text="Encrypted Photo", font=("Helvetica", 16), bg="white")
+            self.lblEncryptedText.place(relwidth=0.3, relheight=0.08, relx=0.55, rely=0.65)
+            self.btnHome.lift(self.frame)
+        else:
+            self.reset()
 
     def decoding(self):
         decode(self.fileLocation, self.outputFileName)
@@ -257,5 +269,11 @@ class TestGUI():
         self.lblSelectText['text'] = "Select image to encrypt:"
         self.lblOutputFileName['text'] = "Enter new file name:"
         self.thirdPage = False
+
+        self.lblShowOriginal.lower(self.frame)
+        self.lblShowEncrypted.lower(self.frame)
+        self.lblEncryptedText.lower(self.frame)
+        self.lblOriginalText.lower(self.frame)
+        self.btnHome.lower(self.frame)
 
 app=TestGUI()
