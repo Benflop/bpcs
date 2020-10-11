@@ -151,45 +151,42 @@ class TestGUI():
 
     def encoding(self):
         encode(self.fileLocation, self.encodeData, self.outputFileName)
-        MsgBox = tk.messagebox.askquestion('Complete', 'Steganographier have encrypted the image successfully! The file is located at  \n'
-                                           +self.outputFileName + '\nDo you want to compare both the files?')
 
+        messagebox.showinfo("Complete", 'Steganographier have encrypted the image successfully! The file is located at  \n'
+                                           +self.outputFileName)
 
+        self.lblProgramName['text'] = "Encryption Completed"
+        self.lblSelectText.lower(self.frame)
+        self.lblOutputFileName.lower(self.frame)
+        self.lblShowSelectInput.lower(self.frame)
+        self.btnNextProcess.lower(self.frame)
+        self.textOutputFileName.lower(self.frame)
 
-        if MsgBox == 'yes':
-            self.lblProgramName['text'] = "Encryption Completed"
-            self.lblSelectText.lower(self.frame)
-            self.lblOutputFileName.lower(self.frame)
-            self.lblShowSelectInput.lower(self.frame)
-            self.btnNextProcess.lower(self.frame)
-            self.textOutputFileName.lower(self.frame)
+        originalImg = Image.open(self.fileLocation)
+        # resize the image and apply a high-quality down sampling filter
+        originalImg = originalImg.resize((210, 210), Image.ANTIALIAS)
+        # PhotoImage class is used to add image to widgets, icons etc
+        originalImg = ImageTk.PhotoImage(originalImg)
+        self.lblShowOriginal = tk.Label(self.root, image=originalImg, bg="white")
+        self.lblShowOriginal.image = originalImg
+        self.lblShowOriginal.place(relwidth=0.3, relheight=0.3, relx=0.15, rely=0.35)
 
-            originalImg = Image.open(self.fileLocation)
-            # resize the image and apply a high-quality down sampling filter
-            originalImg = originalImg.resize((210, 210), Image.ANTIALIAS)
-            # PhotoImage class is used to add image to widgets, icons etc
-            originalImg = ImageTk.PhotoImage(originalImg)
-            self.lblShowOriginal = tk.Label(self.root, image=originalImg, bg="white")
-            self.lblShowOriginal.image = originalImg
-            self.lblShowOriginal.place(relwidth=0.3, relheight=0.3, relx=0.15, rely=0.35)
+        # opens the image
+        encryptImg = Image.open(self.outputFileName)
+        # resize the image and apply a high-quality down sampling filter
+        encryptImg = encryptImg.resize((210, 210), Image.ANTIALIAS)
+        # PhotoImage class is used to add image to widgets, icons etc
+        encryptImg = ImageTk.PhotoImage(encryptImg)
+        self.lblShowEncrypted = tk.Label(self.root, image=encryptImg, bg="white")
+        self.lblShowEncrypted.image = encryptImg
+        self.lblShowEncrypted.place(relwidth=0.3, relheight=0.3, relx=0.55, rely=0.35)
 
-            # opens the image
-            encryptImg = Image.open(self.outputFileName)
-            # resize the image and apply a high-quality down sampling filter
-            encryptImg = encryptImg.resize((210, 210), Image.ANTIALIAS)
-            # PhotoImage class is used to add image to widgets, icons etc
-            encryptImg = ImageTk.PhotoImage(encryptImg)
-            self.lblShowEncrypted = tk.Label(self.root, image=encryptImg, bg="white")
-            self.lblShowEncrypted.image = encryptImg
-            self.lblShowEncrypted.place(relwidth=0.3, relheight=0.3, relx=0.55, rely=0.35)
+        self.lblOriginalText = tk.Label(text="Original Photo", font=("Helvetica", 16), bg="white")
+        self.lblOriginalText.place(relwidth=0.3, relheight=0.08, relx=0.15, rely=0.65)
+        self.lblEncryptedText = tk.Label(text="Encrypted Photo", font=("Helvetica", 16), bg="white")
+        self.lblEncryptedText.place(relwidth=0.3, relheight=0.08, relx=0.55, rely=0.65)
+        self.btnHome.lift(self.frame)
 
-            self.lblOriginalText = tk.Label(text="Original Photo", font=("Helvetica", 16), bg="white")
-            self.lblOriginalText.place(relwidth=0.3, relheight=0.08, relx=0.15, rely=0.65)
-            self.lblEncryptedText = tk.Label(text="Encrypted Photo", font=("Helvetica", 16), bg="white")
-            self.lblEncryptedText.place(relwidth=0.3, relheight=0.08, relx=0.55, rely=0.65)
-            self.btnHome.lift(self.frame)
-        else:
-            self.reset()
 
     def decoding(self):
         decode(self.fileLocation, self.outputFileName)
