@@ -1,11 +1,11 @@
 import tkinter as tk
-from tkinter import filedialog, PhotoImage, Image, messagebox
-from PIL import ImageTk, Image
 import os
+
+from tkinter import filedialog, PhotoImage, Image, messagebox, LEFT, RIGHT
+from PIL import ImageTk, Image
 from bpcs.bpcs_steg_encode import *
 from bpcs.bpcs_steg_decode import *
-from tkinter.ttk import Progressbar
-
+from tkinter.ttk import *
 
 class TestGUI():
     def __init__(self):
@@ -69,8 +69,6 @@ class TestGUI():
         self.btnNextProcess = tk.Button(self.root, text='Next', bg="white", command=lambda: self.processing())
         self.btnNextProcess.place(relwidth=0.12, relheight=0.05, relx=0.45, rely=0.82)
         self.btnNextProcess.lower(self.frame)
-
-
 
         self.lblOutputFileName=tk.Label(text="Enter new file name:", font=("Helvetica", 16), bg="white")
         self.lblOutputFileName.place(relwidth=0.35, relheight=0.08, relx=0.18, rely=0.4)
@@ -147,16 +145,39 @@ class TestGUI():
 
 
     def encoding(self):
-        encode(self.fileLocation, self.encodeData, self.outputFileName)
-        MsgBox = tk.messagebox.askquestion('Complete', 'Steganographier have encrypted the image successfully! The file is located at  \n'
-                                           +self.outputFileName + '\nDo you want to compare both the files?')
+        compareWindow = tk.Toplevel(self.root)
 
-        if MsgBox == 'yes':
-            os.system('cmd /c "'+self.outputFileName+'"')
-            os.system('cmd /c "' +self.fileLocation+'"')
-            self.reset()
-        else:
-            self.reset()
+        compareWindow.geometry("1920x1080")
+
+        encode(self.fileLocation, self.encodeData, self.outputFileName)
+        #MsgBox = tk.messagebox.askquestion('Complete', 'Steganographier have encrypted the image successfully! The file is located at  \n'
+                                           #+self.outputFileName + '\nDo you want to compare both the files?')
+
+        originalImg = Image.open(self.fileLocation)
+        # resize the image and apply a high-quality down sampling filter
+        originalImg = originalImg.resize((400, 400), Image.ANTIALIAS)
+        # PhotoImage class is used to add image to widgets, icons etc
+        originalImg = ImageTk.PhotoImage(originalImg)
+        originalImg.lblShowPanelOriginal = tk.Label(compareWindow, image=originalImg, bg="white")
+        originalImg.lblShowPanelOriginal.image = originalImg
+        originalImg.lblShowPanelOriginal.pack(side=LEFT)
+
+        # opens the image
+        encryptImg = Image.open(self.outputFileName)
+        # resize the image and apply a high-quality down sampling filter
+        encryptImg = encryptImg.resize((400, 400), Image.ANTIALIAS)
+        # PhotoImage class is used to add image to widgets, icons etc
+        encryptImg = ImageTk.PhotoImage(encryptImg)
+        encryptImg.lblShowPanelEncrypted = tk.Label(compareWindow, image=encryptImg, bg="white")
+        encryptImg.lblShowPanelEncrypted.image = encryptImg
+        encryptImg.lblShowPanelEncrypted.pack(side=RIGHT)
+
+        #if MsgBox == 'yes':
+            #os.system('cmd /c "'+self.outputFileName+'"')
+            #os.system('cmd /c "' +self.fileLocation+'"')
+            #self.reset()
+        #else:
+            #self.reset()
 
     def decoding(self):
         decode(self.fileLocation, self.outputFileName)
