@@ -1,7 +1,7 @@
 import tkinter as tk
-from tkinter import filedialog, Text, PhotoImage, Image, messagebox
+from tkinter import filedialog, PhotoImage, Image, messagebox
 from PIL import ImageTk, Image
-import os, threading
+import os
 from bpcs.bpcs_steg_encode import *
 from bpcs.bpcs_steg_decode import *
 from tkinter.ttk import Progressbar
@@ -149,10 +149,11 @@ class TestGUI():
     def encoding(self):
         encode(self.fileLocation, self.encodeData, self.outputFileName)
         MsgBox = tk.messagebox.askquestion('Complete', 'Steganographier have encrypted the image successfully! The file is located at  \n'
-                                           +self.outputFileName + '\nDo you want to open the file?')
+                                           +self.outputFileName + '\nDo you want to compare both the files?')
 
         if MsgBox == 'yes':
             os.system('cmd /c "'+self.outputFileName+'"')
+            os.system('cmd /c "' +self.fileLocation+'"')
             self.reset()
         else:
             self.reset()
